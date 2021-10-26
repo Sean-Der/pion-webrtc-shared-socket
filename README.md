@@ -5,7 +5,8 @@ We wrap this socket in a `sharedUDPConn`, this `sharedUDPConn` drops `ReadFrom` 
 
 ### Running
 
-* `go run main.go`
+* `go install github.com/sean-der/pion-webrtc-shared-socket@latest`
+* `~/go/bin/pion-webrtc-shared-socket`
 * Open `http://localhost:8080`
 
 In the command line you should see
