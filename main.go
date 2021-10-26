@@ -23,6 +23,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	// Read the offer from the HTTP Post and decode
 	offer := webrtc.SessionDescription{}
 	if err := json.NewDecoder(r.Body).Decode(&offer); err != nil {
 		panic(err)
@@ -30,7 +31,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	// Set a handler for when a new remote track starts
+	// Set a handler for when a new remote DataChannel is open and when it receives a message
 	peerConnection.OnDataChannel(func(d *webrtc.DataChannel) {
 		d.OnMessage(func(m webrtc.DataChannelMessage) {
 			fmt.Printf("DataChannel Message:%s\n", m.Data)
@@ -61,11 +62,14 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 
 	<-gatherComplete
 
+	// Encode and respond to the HTTP post with our answer
 	if err = json.NewEncoder(w).Encode(peerConnection.LocalDescription()); err != nil {
 		panic(err)
 	}
 }
 
+// sharedUDPConn wraps a net.UDPConn and allows us to intercept ReadFrom calls
+// when we get a packet that doesn't appear to be WebRTC we drop that value
 type sharedUDPConn struct {
 	*net.UDPConn
 }
